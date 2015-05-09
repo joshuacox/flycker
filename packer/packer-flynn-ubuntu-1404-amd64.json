@@ -1,218 +1,157 @@
 {
   "variables": {
+    "headless": "false",
     "packer-flynn_version": "a0.0",
     "fullname": "packer-flynn-ubuntu-1404-amd64",
-    "mirror": "http://releases.ubuntu.com"
+    "output_dir": "../builds",
+    "ova_path": "ubuntu.ova",
+    "flynn_repository": "https://dl.flynn.io",
+    "source_ami": "ami-9a562df2",
+    "version": ""
   },
   "builders": [
     {
-      "type": "virtualbox-iso",
-      "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
-        "/install/vmlinuz<wait>",
-        " auto<wait>",
-        " console-setup/ask_detect=false<wait>",
-        " console-setup/layoutcode=us<wait>",
-        " console-setup/modelcode=pc105<wait>",
-        " debconf/frontend=noninteractive<wait>",
-        " debian-installer=en_US<wait>",
-        " fb=false<wait>",
-        " initrd=/install/initrd.gz<wait>",
-        " kbd-chooser/method=us<wait>",
-        " keyboard-configuration/layout=USA<wait>",
-        " keyboard-configuration/variant=USA<wait>",
-        " locale=en_US<wait>",
-        " netcfg/get_domain=vm<wait>",
-        " netcfg/get_hostname=vagrant<wait>",
-        " noapic<wait>",
-        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu-14.04/preseed.cfg<wait>",
-        " -- <wait>",
-        "<enter><wait>"
-      ],
-      "boot_wait": "10s",
-      "disk_size": 5960,
-      "guest_os_type": "Ubuntu_64",
-      "http_directory": "http",
-      "iso_checksum": "8acd2f56bfcba2f7ac74a7e4a5e565ce68c024c38525c0285573e41c86ae90c0",
-      "iso_checksum_type": "sha256",
-      "iso_url": "{{user `mirror`}}/14.04.2/ubuntu-14.04.2-server-amd64.iso",
-      "ssh_username": "vagrant",
-      "ssh_password": "vagrant",
-      "ssh_port": 22,
-      "ssh_wait_timeout": "10000s",
-      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/shutdown -hP now",
-      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
-      "virtualbox_version_file": ".vbox_version",
-      "vm_name": "{{user `fullname`}}",
-      "output_directory": "../builds/{{user `fullname`}}-virtualbox",
-      "vboxmanage": [
-        [ "modifyvm", "{{.Name}}", "--memory", "384" ],
-        [ "modifyvm", "{{.Name}}", "--cpus", "1" ]
-      ]
-    },
-    {
       "type": "qemu",
       "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
-        "/install/vmlinuz<wait>",
-        " auto<wait>",
-        " console-setup/ask_detect=false<wait>",
-        " console-setup/layoutcode=us<wait>",
-        " console-setup/modelcode=pc105<wait>",
-        " debconf/frontend=noninteractive<wait>",
-        " debian-installer=en_US<wait>",
-        " fb=false<wait>",
-        " initrd=/install/initrd.gz<wait>",
-        " kbd-chooser/method=us<wait>",
-        " keyboard-configuration/layout=USA<wait>",
-        " keyboard-configuration/variant=USA<wait>",
-        " locale=en_US<wait>",
-        " netcfg/get_domain=vm<wait>",
-        " netcfg/get_hostname=vagrant<wait>",
-        " noapic<wait>",
-        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu-14.04/preseed.cfg<wait>",
-        " -- <wait>",
-        "<enter><wait>"
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+        "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
+        "hostname=flynn ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+        "initrd=/install/initrd.gz -- <enter>"
       ],
-      "boot_wait": "10s",
-      "disk_size": 5960,
+      "boot_wait": "5s",
       "accelerator": "kvm",
-      "headless": "false",
+      "headless": "{{ user `headless` }}",
       "http_directory": "http",
-      "iso_checksum": "8acd2f56bfcba2f7ac74a7e4a5e565ce68c024c38525c0285573e41c86ae90c0",
+      "iso_checksum": "946a6077af6f5f95a51f82fdc44051c7aa19f9cfc5f737954845a6050543d7c2",
       "iso_checksum_type": "sha256",
-      "iso_url": "{{user `mirror`}}/14.04.2/ubuntu-14.04.2-server-amd64.iso",
-      "ssh_username": "vagrant",
+      "iso_url": "http://releases.ubuntu.com/14.04.1/ubuntu-14.04.1-server-amd64.iso",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
       "ssh_password": "vagrant",
-      "ssh_port": 22,
-      "ssh_wait_timeout": "10000s",
-      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/shutdown -hP now",
+      "ssh_username": "vagrant",
+      "ssh_wait_timeout": "20m",
+      "tools_upload_flavor": "linux",
+      "vm_name": "{{user `fullname`}}"
+    },
+    {
+      "type": "virtualbox-iso",
+      "boot_command": [
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+        "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
+        "hostname=flynn ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+        "initrd=/install/initrd.gz -- <enter>"
+      ],
+      "boot_wait": "5s",
+      "guest_os_type": "Ubuntu_64",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "iso_checksum": "946a6077af6f5f95a51f82fdc44051c7aa19f9cfc5f737954845a6050543d7c2",
+      "iso_checksum_type": "sha256",
+      "iso_url": "http://releases.ubuntu.com/14.04.1/ubuntu-14.04.1-server-amd64.iso",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+      "ssh_password": "vagrant",
+      "ssh_username": "vagrant",
+      "ssh_wait_timeout": "20m",
+      "tools_upload_flavor": "linux",
       "vm_name": "{{user `fullname`}}",
-      "output_directory": "../builds/{{user `fullname`}}-qemu"
+      "vboxmanage": [
+        [ "modifyvm", "{{.Name}}", "--memory", "512" ],
+        [ "modifyvm", "{{.Name}}", "--cpus", "2" ]
+      ]
     },
     {
       "type": "vmware-iso",
       "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
-        "/install/vmlinuz<wait>",
-        " auto<wait>",
-        " console-setup/ask_detect=false<wait>",
-        " console-setup/layoutcode=us<wait>",
-        " console-setup/modelcode=pc105<wait>",
-        " debconf/frontend=noninteractive<wait>",
-        " debian-installer=en_US<wait>",
-        " fb=false<wait>",
-        " initrd=/install/initrd.gz<wait>",
-        " kbd-chooser/method=us<wait>",
-        " keyboard-configuration/layout=USA<wait>",
-        " keyboard-configuration/variant=USA<wait>",
-        " locale=en_US<wait>",
-        " netcfg/get_domain=vm<wait>",
-        " netcfg/get_hostname=vagrant<wait>",
-        " noapic<wait>",
-        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu-14.04/preseed.cfg<wait>",
-        " -- <wait>",
-        "<enter><wait>"
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+        "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
+        "hostname=flynn ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+        "initrd=/install/initrd.gz -- <enter>"
       ],
-      "boot_wait": "10s",
-      "disk_size": 5960,
-      "guest_os_type": "Ubuntu_64",
+      "boot_wait": "5s",
+      "headless": "{{ user `headless` }}",
       "http_directory": "http",
-      "iso_checksum": "8acd2f56bfcba2f7ac74a7e4a5e565ce68c024c38525c0285573e41c86ae90c0",
+      "iso_checksum": "946a6077af6f5f95a51f82fdc44051c7aa19f9cfc5f737954845a6050543d7c2",
       "iso_checksum_type": "sha256",
-      "iso_url": "{{user `mirror`}}/14.04.2/ubuntu-14.04.2-server-amd64.iso",
-      "ssh_username": "vagrant",
+      "iso_url": "http://releases.ubuntu.com/14.04.1/ubuntu-14.04.1-server-amd64.iso",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
       "ssh_password": "vagrant",
-      "ssh_port": 22,
-      "ssh_wait_timeout": "10000s",
-      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/shutdown -hP now",
+      "ssh_username": "vagrant",
+      "ssh_wait_timeout": "20m",
       "tools_upload_flavor": "linux",
-      "vm_name": "{{user `fullname`}}",
-      "output_directory": "../builds/{{user `fullname`}}-vmware",
-      "vmx_data": {
-        "memsize": "384",
-        "numvcpus": "1",
-        "cpuid.coresPerSocket": "1"
-      }
+      "vm_name": "{{user `fullname`}}"
     },
     {
-      "type": "parallels-iso",
-      "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
-        "/install/vmlinuz<wait>",
-        " auto<wait>",
-        " console-setup/ask_detect=false<wait>",
-        " console-setup/layoutcode=us<wait>",
-        " console-setup/modelcode=pc105<wait>",
-        " debconf/frontend=noninteractive<wait>",
-        " debian-installer=en_US<wait>",
-        " fb=false<wait>",
-        " initrd=/install/initrd.gz<wait>",
-        " kbd-chooser/method=us<wait>",
-        " keyboard-configuration/layout=USA<wait>",
-        " keyboard-configuration/variant=USA<wait>",
-        " locale=en_US<wait>",
-        " netcfg/get_domain=vm<wait>",
-        " netcfg/get_hostname=vagrant<wait>",
-        " noapic<wait>",
-        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu-14.04/preseed.cfg<wait>",
-        " -- <wait>",
-        "<enter><wait>"
-      ],
-      "boot_wait": "10s",
-      "disk_size": 5960,
-      "guest_os_type": "Ubuntu_64",
-      "http_directory": "http",
-      "iso_checksum": "8acd2f56bfcba2f7ac74a7e4a5e565ce68c024c38525c0285573e41c86ae90c0",
-      "iso_checksum_type": "sha256",
-      "iso_url": "{{user `mirror`}}/14.04.2/ubuntu-14.04.2-server-amd64.iso",
-      "ssh_username": "vagrant",
+      "type": "virtualbox-ovf",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "headless": "{{ user `headless` }}",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+      "source_path": "{{ user `ova_path` }}",
       "ssh_password": "vagrant",
-      "ssh_port": 22,
-      "ssh_wait_timeout": "10000s",
-      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/shutdown -hP now",
-      "parallels_tools_flavor": "lin",
-      "prlctl_version_file": ".prlctl_version",
-      "vm_name": "{{user `fullname`}}",
-      "output_directory": "../builds/{{user `fullname`}}-parallels",
-      "prlctl": [
-        [ "set", "{{.Name}}", "--memsize", "384" ],
-        [ "set", "{{.Name}}", "--cpus", "1" ]
-      ]
-    }
-
-  ],
-  "post-processors": [
+      "ssh_username": "vagrant",
+      "ssh_wait_timeout": "20m",
+      "vboxmanage": [
+        ["modifyvm", "{{ .Name }}", "--memory", "4096"],
+        ["modifyvm", "{{ .Name }}", "--cpus", "4"]
+      ],
+      "virtualbox_version_file": ".vbox_version",
+      "vm_name": "{{user `fullname`}}"
+    },
     {
-      "type": "vagrant",
-      "only": ["virtualbox-iso"],
-      "output": "../builds/vagrant/{{user `fullname`}}_packer-flynn-{{user `packer-flynn_version`}}.box"
+      "type": "amazon-ebs",
+      "ami_block_device_mappings": [{
+        "device_name": "/dev/sda1",
+        "volume_size": "50",
+        "volume_type": "gp2"
+      }],
+      "ami_groups": ["all"],
+      "ami_name": "flynn-{{ user `version` }}-ubuntu-14.04-{{timestamp}}",
+      "ami_regions": [
+        "ap-northeast-1",
+        "ap-southeast-1",
+        "ap-southeast-2",
+        "eu-west-1",
+        "sa-east-1",
+        "us-west-1",
+        "us-west-2"
+      ],
+      "instance_type": "m3.large",
+      "region": "us-east-1",
+      "source_ami": "{{ user `source_ami` }}",
+      "ssh_username": "ubuntu"
     }
   ],
   "provisioners": [
     {
-      "scripts": [
-        "scripts/debian/update.sh",
-        "scripts/common/sshd.sh",
-        "scripts/debian/networking.sh",
-        "scripts/debian/sudoers.sh",
-        "scripts/common/vagrant.sh",
-        "scripts/common/vmtools.sh",
-        "scripts/common/flynn.sh",
-        "scripts/debian/cleanup.sh",
-        "scripts/common/minimize.sh"
-      ],
       "type": "shell",
+      "scripts": [
+        "scripts/upgrade.sh",
+        "scripts/install.sh"
+      ],
+      "environment_vars": [
+        "FLYNN_REPOSITORY={{ user `flynn_repository` }}",
+        "FLYNN_VERSION={{ user `version` }}"
+      ],
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-      "environment_vars": [ "PACKER_flynn_VERSION={{user `packer-flynn_version`}}" ]
+      "override": {
+        "amazon-ebs": {
+          "execute_command": "{{ .Vars }} sudo -E bash '{{ .Path }}'"
+        }
+      }
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "{{ user `output_dir` }}/flynn-base_{{ user `version` }}_{{ .Provider }}.box",
+      "except": ["amazon-ebs"]
     }
   ]
 }
